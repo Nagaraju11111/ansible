@@ -41,12 +41,12 @@
         src: index1.html
         dest: /var/www/html/index.html
       when:
-        - ansible_facts["nodename"] = "ansible-2"  
+        - ansible_facts["nodename"] == "ansible-2"  
     - name: copy path to server2
       ansible.builtin.copy:
        src: index2.html  
        dest: /var/www/html/index.html
       when:
-        - ansible_facts["nodename"] != "ansible-3" 
+        - ansible_facts["nodename"] == "ansible-3" 
            
 
