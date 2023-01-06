@@ -9,44 +9,44 @@
         update_cache: yes
         state: present
       when:
-        - ansible_facts["nodename"] == "ansible1"  
+        - ansible_facts["nodename"] == "ansible-1"  
     - name: copy backfile
       ansible.builtin.copy:
         src: /etc/haproxy/haproxy.cfg
         dest: /etc/haproxy/haproxy.cfg.bk
       when:
-        - ansible_facts["nodename"] == "ansible1"  
+        - ansible_facts["nodename"] == "ansible-1"  
     - name: copy proxy.yaml
       ansible.builtin.copy:
         src: haproxy.cfg 
         dest: /etc/haproxy/haproxy.cfg
       when:
-        - ansible_facts["nodename"] == "ansible1"  
+        - ansible_facts["nodename"] == "ansible-1"  
     - name: restart haproxy
       ansible.builtin.systemd:   
         name: haproxy
         state: restarted
         enabled: yes
       when:
-        - ansible_facts["nodename"] == "ansible1"  
+        - ansible_facts["nodename"] == "ansible-1"  
     - name: install apache server
       ansible.builtin.apt:
         name: apache2
         update_cache: yes
         state: present   
       when:
-        - ansible_facts["nodename"] != "ansible1"  
+        - ansible_facts["nodename"] != "ansible-1"  
     - name: copy path to server1
       ansible.builtin.copy:
         src: index1.html
         dest: /var/www/html/index1.html
       when:
-        - ansible_facts["nodename"] = "ansible2"  
+        - ansible_facts["nodename"] = "ansible-2"  
     - name: copy path to server2
       ansible.builtin.copy:
        src: index2.html  
        dest: /var/www/html/index2.html
       when:
-        - ansible_facts["nodename"] != "ansible3" 
+        - ansible_facts["nodename"] != "ansible-3" 
            
 
