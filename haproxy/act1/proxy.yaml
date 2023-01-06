@@ -14,14 +14,12 @@
       ansible.builtin.copy:
         src: /etc/haproxy/haproxy.cfg
         dest: /etc/haproxy/haproxy.cfg.bk
-        remote_src: yes
       when:
         - ansible_facts["nodename"] == "ansible1"  
     - name: copy proxy.yaml
       ansible.builtin.copy:
-        src: proxy.yaml
+        src: haproxy.cfg 
         dest: /etc/haproxy/haproxy.cfg
-        remote_src: yes
       when:
         - ansible_facts["nodename"] == "ansible1"  
     - name: restart haproxy
@@ -42,14 +40,12 @@
       ansible.builtin.copy:
         src: index1.html
         dest: /var/www/html/index1.html
-        remote_src: yes
       when:
         - ansible_facts["nodename"] = "ansible2"  
     - name: copy path to server2
       ansible.builtin.copy:
        src: index2.html  
        dest: /var/www/html/index2.html
-       remote_src: yes  
       when:
         - ansible_facts["nodename"] != "ansible3" 
            
