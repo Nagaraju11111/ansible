@@ -1,0 +1,56 @@
+---
+- name: install haproxy
+  hosts: all
+  become: yes
+  tasks:
+    - name: install haproxy
+      ansible.builtin.apt:
+        name: haproxy
+        update_cache: yes
+        state: present
+      when:
+        - ansible_facts["nodename"] == "ansiblemaster"  
+    - name: copy backfile
+      ansible.builtin.copy:
+        src: /etc/haproxy/haproxy.cfg
+        dest: /etc/haproxy/haproxy.cfg.bk
+        remote_src: yes
+      when:
+        - ansible_facts["nodename"] == "ansiblemaster"  
+    - name: copy proxy.yaml
+      ansible.builtin.copy:
+        src: proxy.yaml
+        dest: /etc/haproxy/haproxy.cfg
+        remote_src: yes
+      when:
+        - ansible_facts["nodename"] == "ansiblemaster"  
+    - name: restart haproxy
+      ansible.builtin.systemd:   
+        name: haproxy
+        state: restarted
+        enabled: yes
+      when:
+        - ansible_facts["nodename"] == "ansiblemaster"  
+    - name: install apache server
+      ansible.builtin.apt:
+        name: apache2
+        update_cache: yes
+        state: present   
+      when:
+        - ansible_facts["nodename"] != "ansiblemaster"  
+    - name: copy path to server1
+      ansible.builtin.copy:
+        src: index1.html
+        dest: /var/www/html/index1.html
+        remote_src: yes
+      when:
+        - ansible_facts["nodename"] = "node1"  
+    - name: copy path to server2
+      ansible.builtin.copy:
+       src: index2.html  
+       dest: /var/www/html/index2.html
+       remote_src: yes  
+      when:
+        - ansible_facts["nodename"] != "node2" 
+           
+

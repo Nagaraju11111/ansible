@@ -1,0 +1,84 @@
+---
+- name: install wildplay
+  become: yes
+  hosts: all
+  tasks:
+    - name: update and install java11
+      ansible.builtin.apt:
+          name: openjdk-11-jdk
+          update_cache: yes
+          state: present
+    - name: create group
+      ansible.builtin.group:
+        name: wildfly
+        state: present
+    - name: create user and add to group
+      ansible.builtin.user:
+          name: wildfly
+          group: wildfly
+          home: /opt/wildfly
+          shell: /sbin/nologin
+          system: true
+          state: present
+    - name: Download tar file
+      ansible.builtin.get_url:
+        url: https://download.jboss.org/wildfly/22.0.1.Final/wildfly-22.0.1.Final.tar.gz
+        dest: /tmp/wildfly-22.0.1.Final.tar.gz
+        mode: '777'
+    - name: untar file
+      ansible.builtin.unarchive:
+        src: /tmp/wildfly-22.0.1.Final.tar.gz
+        dest: /tmp/
+        remote_src: yes
+    - name: Copy files to home directory of user
+      ansible.builtin.copy:
+        src: /tmp/wildfly-22.0.1.Final/
+        dest: /opt/wildfly
+        owner: wildfly
+        group: wildfly
+        mode: '777'
+        remote_src: yes
+    - name: Recursively change ownership of a directory
+      ansible.builtin.file:
+        path: /opt/wildfly
+        state: directory
+        recurse: yes
+        owner: wildfly
+        group: wildfly
+    - name: Create a directory if it does not exist
+      ansible.builtin.file:
+        path: /etc/wildfly
+        state: directory
+        mode: '777'
+    - name: Copy files to home directory of user
+      ansible.builtin.copy:
+        src: /opt/wildfly/docs/contrib/scripts/systemd/wildfly.conf
+        dest: /etc/wildfly/
+        remote_src: yes
+    - name: Copy files to home directory of user
+      ansible.builtin.copy:
+        src: /opt/wildfly/docs/contrib/scripts/systemd/launch.sh
+        dest: /opt/wildfly/bin/
+        remote_src: yes
+    - name: Find files
+      find:
+          paths: /opt/wildfly/bin/
+          patterns: "*.sh"
+      register: files_to_change
+    - name: Modify the file permissions
+      file:
+          path: "{{ item.path }}"
+          owner: wildfly
+          group: wildfly
+          mode: '777'
+      with_items: "{{ files_to_change.files }}"
+    - name: Copy files to home directory of user
+      ansible.builtin.copy:
+        src: /opt/wildfly/docs/contrib/scripts/systemd/wildfly.service
+        dest: /etc/systemd/system/
+        remote_src: yes
+    - name: Make sure a service unit is running
+      ansible.builtin.systemd:
+        state: started
+        name: wildfly
+        enabled: yes

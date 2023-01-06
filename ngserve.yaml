@@ -1,0 +1,45 @@
+---
+- name: install ngserve
+  hosts: all
+  become: yes
+  tasks:
+    - name: update ubuntu packages
+      ansible.builtin.apt:
+        name: ubuntu update
+        update_cache: yes
+        state: present
+    - name: install packages
+      ansible.builtin.command: 
+        cmd: curl -sL https://deb.nodesource.com/setup_16.x | sudo bash -    
+    - name: install nodejs 
+      ansible.builtin.apt:
+        name: nodejs16
+        state: present    
+    - name: install npm
+      ansible.builtin.apt:
+        name: npm
+        state: present
+    - name: clone the code
+      ansible.builtin.git:
+        repo: https://github.com/gothinkster/angular-realworld-example-app.git
+        dest: /home/devops 
+    - name: change directory and install softwares
+      ansible.builtin.command:
+        chdir: /home/devops/angular-realworld-example-app
+        cmd: |
+          sudo npm install -g @angular/cli@8
+          sudo npm install
+    - name: copy servicefile
+      ansible.builtin.copy:
+        src: D:/devopspractice/terraform/vmtask2filep/ngserve.service
+        dest: /etc/systemd/system
+        mode: '777'
+    - name: service restart
+      ansible.builtin.service:
+        name: ngserve
+        daemon_reload: yes
+        state: started
+
+
+
+

@@ -1,0 +1,65 @@
+---
+- name: installing HaProxy
+  become: yes
+  hosts: all
+  tasks:
+    - name: install apache2 and update
+      ansible.builtin.apt:
+          name: apache2
+          state: present
+          update_cache: yes
+      when:
+           ansible_facts["nodename"] != "ansiblemaster"
+    - name: copy the file
+      ansible.builtin.copy:
+        src: info.html
+        dest: /var/www/html/info.html
+      when:
+          ansible_facts["nodename"] == "ansiblenode"
+    - name: copy the file
+      ansible.builtin.copy:
+        src: info2.html
+        dest: /var/www/html/info.html
+      when:
+          ansible_facts["nodename"] == "ansiblenode-2"
+    - name: Copy using inline content
+      ansible.builtin.copy:
+        content: HAproxy 10.2.0.4
+        dest: /etc/hosts
+      when:
+          ansible_facts["nodename"] != "ansiblemaster"
+    - name: restart the server
+      ansible.builtin.systemd:
+        name: apache2
+        state: started
+        enabled: yes
+      when:
+          ansible_facts["nodename"] != "ansiblemaster"
+    - name: copy the file
+      ansible.builtin.copy:
+        src: hostsfile
+        dest: /etc/hosts
+      when:
+          ansible_facts["nodename"] == "ansiblemaster"
+    - name: update and install haproxy
+      ansible.builtin.apt:
+          name: haproxy
+          update_cache: yes
+          state: present
+      when:
+          ansible_facts["nodename"] == "ansiblemaster"
+    - name: copy the file
+      ansible.builtin.blockinfile:
+        path: /etc/haproxy/haproxy.cfg
+        block: "{{lookup('file', 'configproxy')}}"
+        create: yes
+        state: present
+      when:
+          ansible_facts["nodename"] == "ansiblemaster"
+    - name: restart the server
+      ansible.builtin.systemd:
+        name: haproxy
+        state: restarted
+        enabled: yes
+      when:
+          ansible_facts["nodename"] == "ansiblemaster"

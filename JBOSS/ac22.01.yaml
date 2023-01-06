@@ -1,0 +1,93 @@
+---
+- name: install jboss on ubuntu
+  hosts: all
+  become: yes
+  tasks:
+    - name: install java 
+      ansible.builtin.apt:
+        name: openjdk-11-jdk
+        update_cache: yes
+        state: present
+    - name: install curl and wget
+      ansible.builtin.apt:
+        name:
+          - curl
+          - wget
+        state: present
+    - name: download wildlife version
+      ansible.builtin.get_url:
+        url: https://github.com/wildfly/wildfly/releases/download/22.0.1.Final/wildfly-22.0.1.Final.tar.gz
+        dest: /tmp 
+    - name: unzip files
+      ansible.builtin.unarchive:
+        src: /tmp/wildfly-22.0.1.Final.tar.gz
+        remote_src: yes
+        dest: /tmp/
+        mode: '0777'
+    - name: create directory
+      ansible.builtin.file:
+        path: /opt/wildfly 
+        state: directory      
+    - name: Copy files to home directory of user
+      ansible.builtin.copy:
+        src: /tmp/wildfly-22.0.1.Final
+        dest: /opt/wildfly
+        owner: wildfly
+        group: wildfly
+        mode: '777'
+        remote_src: yes    
+    - name: add group
+      ansible.builtin.group:
+        name: wildfly
+        system: true
+        state: present
+    - name: useradd
+      ansible.builtin.user:
+        name: wildfly
+        shell: /sbin/nologin
+        group: wildfly
+        system: true
+        home: /opt/wildfly
+    - name: create file
+      ansible.builtin.file:
+        path: /etc/wildfly
+        state: touch
+    - name: copy files to wildfly
+      ansible.builtin.copy:   
+        src: /opt/wildfly/docs/contrib/scripts/systemd/wildfly.conf
+        dest: /etc/wildfly/
+        remote_src: yes
+        owner: wildfly
+        group: wildfly
+        mode: '0777'
+    - name: copyfiles to system 
+      ansible.builtin.copy: 
+        src: /opt/wildfly/docs/contrib/scripts/systemd/wildfly.service
+        dest: /etc/systemd/system/
+        remote_src: yes
+    - name: copyfiles to bin 
+      ansible.builtin.copy:
+        src: /opt/wildfly/docs/contrib/scripts/systemd/launch.sh
+        dest: /opt/wildfly/bin/
+        remote_src: yes
+    - name: file permissions
+      ansible.builtin.find:
+        path: /opt/wildfly/bin/
+        patterns: "*.sh"
+      register: files_to_change
+    - name: change ownership
+      ansible.builtin.file:
+        path: /opt/wildfly
+        state: directory
+        recurse: yes
+        owner: wildfly
+        group: wildfly
+    - name: system restart  
+      ansible.builtin.systemd:
+        daemon_reload: yes
+        name: wildfly
+        enabled: yes
+        state: started       
+                
+    
+            

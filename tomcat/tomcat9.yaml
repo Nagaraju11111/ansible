@@ -1,0 +1,87 @@
+---
+name: install tomcat9
+become: yes
+hosts: all
+vars:
+  java_package_name: openjdk-11-jdk
+  tomcat_home_dire: /opt/tomcat
+  tomcat_user: tomcat
+  tomcat_default_shell: /bin/false
+  tomcat_download_url: https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.65/bin/apache-tomcat-9.0.65.tar.gz
+  tomcat_download_location: /tmp/apache-tomcat-9.0.65.tar.gz
+  tomcat_service_file_location: /etc/systemd/system/tomcat.service
+  tomcat_users_location: /opt/tomcat/latest/conf/tomcat-users.xml
+  tomcat_manager_conf_location: /opt/tomcat/latest/webapps/manager/META-INF/context.xml
+  tomcat_hostmanager_conf_location: /opt/tomcat/latest/webapps/host-manager/META-INF/context.xml
+tasks:
+  - name: update ubuntu packages and install java 11
+    ansible.builtin.apt:
+      name: "{{java_package_name}}"
+      update_cache: yes
+      state: present
+  - name: create a system user
+    ansible.builtin.user:
+      name: "{{tomcat_user}}"
+      shell: "{{tomcat_default_shell}}"
+      group: "{{tomcat_user}}"
+      create_home: yes
+      home: "{{tomcat_home_dire}}"
+  - name: download tomcat
+    ansible.builtin.get_url:
+      url: "{{ tomcat_download_url}}"
+      dest: "{{tomcat_download_location}}"
+  - name: extract tomcat files
+    ansible.builtin.unarchive:
+      src: '{{tomcat_download_location}}'
+      dest: '{{tomcat_home_dire}}'
+      remote_src: yes
+  - name: Create a symbolic link
+    ansible.builtin.file:
+      src: '{{tomcat_home_dire}}/apache-tomcat-9.0.65'
+      dest: '{{tomcat_home_dire}}/latest'
+      owner: '{{tomcat_user}'
+      group: '{{tomcat_user}}'
+      state: link
+  - name: Recursively change ownership of a directory
+    ansible.builtin.file:
+      path: "{{tomcat_home_dire}}"
+      state: directory
+      recurse: yes
+      owner: "{{tomcat_user}}"
+      group: "{{tomcat_user}}"
+  - name: Give Execute permissions to shell files in tomcat's bin directory
+    ansible.builtin.file:
+        path: "{{ item }}"
+        mode: "+x"
+        with_fileglob:
+          - "{{ tomcat_home_dir }}/latest/bin/*.sh"
+  - name: copy the tomcat service unit file
+    ansible.builtin.copy:
+        src: tomcat.service
+        dest: "{{ tomcat_service_file_location }}"
+  - name: reload daemon
+    ansible.builtin.systemd:
+        name: tomcat
+        daemon_reload: yes
+        enabled: yes
+        state: started  
+  - name: copy the tomcat users xml
+    ansible.builtin.copy:
+        src: tomcat-users.xml
+        dest: "{{ tomcat_users_location }}"
+  - name: copy manager context xml
+    ansible.builtin.copy:
+        src: manager-context.xml
+        dest: "{{ tomcat_manager_conf_location }}"
+  - name: copy host manager context xml
+    ansible.builtin.copy:
+        src: hostmanager-context.xml
+        dest: "{{ tomcat_hostmanager_conf_location }}"
+  - name: restart tomcat
+    ansible.builtin.systemd:
+        name: tomcat
+        state: restarted        
+
+
+
+
