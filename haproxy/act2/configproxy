@@ -12,9 +12,9 @@ backend web_servers
 
     balance roundrobin
 
-    server server-1 10.0.0.6:80 check
+    server ansible-2 10.0.0.6:80 check
 
-    server server-2 10.0.0.4:80 check
+    server ansible-3 10.0.0.4:80 check
 
 listen stats
 
