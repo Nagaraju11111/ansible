@@ -19,7 +19,7 @@
     - name: copy the file
       ansible.builtin.blockinfile:
         path: /etc/haproxy/haproxy.cfg
-        block: "{{lookup('file', 'haproxy.cfg')}}"
+        block: "{{lookup('file', 'configproxy')}}"
         create: yes
         state: present
       when:
