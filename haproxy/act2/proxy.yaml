@@ -3,34 +3,6 @@
   hosts: all
   become: yes
   tasks:
-    - name: install haproxy
-      ansible.builtin.apt:
-        name: haproxy
-        update_cache: yes
-        state: present
-      when:
-        - ansible_facts["nodename"] == "ansible-1"  
-    - name: copy backfile
-      ansible.builtin.copy:
-        src: /etc/haproxy/haproxy.cfg
-        dest: /etc/haproxy/haproxy.cfg.bk
-      when:
-        - ansible_facts["nodename"] == "ansible-1"  
-    - name: copy the file
-      ansible.builtin.blockinfile:
-        path: /etc/haproxy/haproxy.cfg
-        block: "{{lookup('file', 'configproxy')}}"
-        create: yes
-        state: present
-      when:
-        - ansible_facts["nodename"] == "ansible-1"  
-    - name: restart haproxy
-      ansible.builtin.systemd:   
-        name: haproxy
-        state: restarted
-        enabled: yes
-      when:
-        - ansible_facts["nodename"] == "ansible-1"  
     - name: install apache server
       ansible.builtin.apt:
         name: apache2
@@ -50,5 +22,28 @@
        dest: /var/www/html/index.html
       when:
         - ansible_facts["nodename"] == "ansible-3" 
+    - name: install haproxy
+      ansible.builtin.apt:
+        name: haproxy
+        update_cache: yes
+        state: present
+      when:
+        - ansible_facts["nodename"] == "ansible-1"  
+    - name: copy the file
+      ansible.builtin.blockinfile:
+        path: /etc/haproxy/haproxy.cfg
+        block: "{{lookup('file', 'configproxy')}}"
+        create: yes
+        state: present
+      when:
+        - ansible_facts["nodename"] == "ansible-1"  
+    - name: restart haproxy
+      ansible.builtin.systemd:   
+        name: haproxy
+        daemon_reload: yes
+        state: started
+        enabled: yes
+      when:
+        - ansible_facts["nodename"] == "ansible-1"    
            
 
