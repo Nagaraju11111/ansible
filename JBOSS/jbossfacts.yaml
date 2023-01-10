@@ -16,7 +16,7 @@
         update_cache: yes
         state: present
       when:
-        - ansible_facts['distribution'] == "Debian"  
+        - ansible_facts['distribution'] == "Ubuntu"  
     - name: install java on centos 
       ansible.builtin.yum:
         name: "{{ java_package_centos }}"

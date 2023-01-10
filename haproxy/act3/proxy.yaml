@@ -1,0 +1,75 @@
+---
+- name: install haproxy
+  hosts: all
+  become: yes
+  tasks:
+    - name: install apache
+      ansible.builtin.apt:
+        name: apache2
+        update_cache: yes
+        state: present
+      when:
+        - ansible_facts["hostname"] != "ansible-1"  
+    - name: copy hostfile to ser1
+      ansible.builtin.copy:
+        src: HAproxy 192.168.72.157
+        dest: /etc/hosts
+      when:
+        - ansible_facts["hostname"] == "ansible-2"  
+    - name: copy index1
+      ansible.builtin.copy:
+        src: index1.html
+        dest: /var/www/html/index.html
+      when:
+        - ansible_facts["hostname"] == "ansible-2"      
+    - name: copy hostfile to ser2
+      ansible.builtin.copy:
+        src: HAproxy 192.168.72.157
+        dest: /etc/hosts  
+      when:
+        - ansible_facts["hostname"] == "ansible-3"    
+    - name: copy index2
+      ansible.builtin.copy:
+        src: index2.html
+        dest: /var/www/html/index.html   
+      when:
+        - ansible_facts["hostname"] == "ansible-3"  
+    - name: restart apache2
+      ansible.builtin.systemd:
+        name: apache2
+        enabled: yes
+        state: started
+      when:
+        - ansible_facts["hostname"] != "ansible-1"  
+    - name: copy configfile to main server
+      ansible.builtin.copy:
+        src: configfile
+        dest: /etc/hosts
+      when:
+        - ansible_facts["hostname"] == "ansible-1"  
+    - name: install haproxy 
+      ansible.builtin.apt:
+        name: haproxy
+        update_cache: yes
+        state: present   
+      when:
+        - ansible_facts["hostname"] == "ansible-1"  
+    - name: copy configfile 
+      ansible.builtin.blockinfile:
+        path: /etc/haproxy/haproxy.cfg
+        block: "{{lookup('file', 'configproxy')}}"
+        create: yes
+        state: present
+      when:
+        - ansible_facts["hostname"] == "ansible-1"  
+    - name: restart haproxy
+      ansible.builtin.systemd:   
+        name: haproxy
+        daemon_reload: yes
+        state: started
+        enabled: yes  
+      when:
+        - ansible_facts["hostname"] == "ansible-1"    
+
+              
+            
