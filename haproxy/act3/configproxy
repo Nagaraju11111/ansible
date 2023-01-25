@@ -9,9 +9,9 @@ backend web_backend
 
     balance roundrobin
 
-    server web-server1 10.0.0.6:80 check
+    server ip-172-31-48-40 172.31.48.40:80 check
 
-    server web-server2 10.0.0.4:80 check
+    server ip-172-31-57-198 172.31.57.198:80 check
 
 listen stats
   bind *:8080

@@ -9,51 +9,51 @@
         update_cache: yes
         state: present
       when:
-        - ansible_facts["hostname"] != "ansible-1"  
+        - ansible_facts["hostname"] != "ip-172-31-48-145"  
     - name: copy hostfile to ser1
       ansible.builtin.copy:
-        src: HAproxy 192.168.72.157
+        content: ip-172-31-48-145 172.31.48.145
         dest: /etc/hosts
       when:
-        - ansible_facts["hostname"] == "ansible-2"  
+        - ansible_facts["hostname"] == "ip-172-31-48-40"  
     - name: copy index1
       ansible.builtin.copy:
         src: index1.html
         dest: /var/www/html/index.html
       when:
-        - ansible_facts["hostname"] == "ansible-2"      
+        - ansible_facts["hostname"] == "ip-172-31-48-40"      
     - name: copy hostfile to ser2
       ansible.builtin.copy:
-        src: HAproxy 192.168.72.157
+        content: ip-172-31-48-145 172.31.48.145
         dest: /etc/hosts  
       when:
-        - ansible_facts["hostname"] == "ansible-3"    
+        - ansible_facts["hostname"] == "ip-172-31-57-198"    
     - name: copy index2
       ansible.builtin.copy:
         src: index2.html
         dest: /var/www/html/index.html   
       when:
-        - ansible_facts["hostname"] == "ansible-3"  
+        - ansible_facts["hostname"] == "ip-172-31-57-198"  
     - name: restart apache2
       ansible.builtin.systemd:
         name: apache2
         enabled: yes
         state: started
       when:
-        - ansible_facts["hostname"] != "ansible-1"  
+        - ansible_facts["fqdn"] != "ip-172-31-48-145"  
     - name: copy configfile to main server
       ansible.builtin.copy:
         src: configfile
         dest: /etc/hosts
       when:
-        - ansible_facts["hostname"] == "ansible-1"  
+        - ansible_facts["hostname"] == "ip-172-31-48-145"  
     - name: install haproxy 
       ansible.builtin.apt:
         name: haproxy
         update_cache: yes
         state: present   
       when:
-        - ansible_facts["hostname"] == "ansible-1"  
+        - ansible_facts["hostname"] == "ip-172-31-48-145"  
     - name: copy configfile 
       ansible.builtin.blockinfile:
         path: /etc/haproxy/haproxy.cfg
@@ -61,7 +61,7 @@
         create: yes
         state: present
       when:
-        - ansible_facts["hostname"] == "ansible-1"  
+        - ansible_facts["hostname"] == "ip-172-31-48-145"  
     - name: restart haproxy
       ansible.builtin.systemd:   
         name: haproxy
@@ -69,7 +69,7 @@
         state: started
         enabled: yes  
       when:
-        - ansible_facts["hostname"] == "ansible-1"    
+        - ansible_facts["hostname"] == "ip-172-31-48-145"    
 
               
             
