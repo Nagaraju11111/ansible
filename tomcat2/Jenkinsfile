@@ -1,0 +1,16 @@
+pipeline {
+    agent { label 'ansible' }
+    stages {
+        stage('vcs') {
+            steps {
+                git url: 'https://github.com/Nagaraju11111/ansible.git',
+                    branch: 'main'
+            }
+        }
+        stage('ansible') {
+            steps {
+                sh 'ansible-playbook -i /tomcat2/hosts /tomcat2/handlers.yaml'
+            }
+        }
+    }
+}
