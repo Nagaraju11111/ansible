@@ -9,7 +9,7 @@ pipeline {
         }
         stage('ansible') {
             steps {
-                sh 'ansible-playbook -i /tomcat2/hosts /tomcat2/handlers.yaml'
+                sh 'ansible-playbook -i ./tomcat2/hosts ./tomcat2/handlers.yaml'
             }
         }
     }
