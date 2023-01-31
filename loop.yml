@@ -1,0 +1,65 @@
+--- 
+- name: install java on servers 
+  hosts: all 
+  become: yes 
+  tasks: 
+    - name: install java versions
+      ansible.builtin.apt:
+        name: "{{ item }}" 
+        update_cache: yes 
+        state: present
+      loop:
+        - openjdk-11-jdk
+        - openjdk-13-jdk
+        - openjdk-17-jdk
+
+---
+- name: install java on servers 
+  hosts: all 
+  become: yes 
+  vars:
+    java_versions:
+      - openjdk-11-jdk
+      - openjdk-13-jdk
+      - openjdk-17-jdk
+  tasks: 
+    - name: install java versions
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        update_cache: yes 
+        state: present
+      loop: "{{ java_versions }}"
+        
+--- 
+- name: install tomcat on servers 
+  hosts: all 
+  become: yes 
+  vars:
+    tomcat_versions:
+      - tomcat9 
+      - tomcat10
+      - tomcat11
+  tasks: 
+    - name: install tomcat versions
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        update_cache: yes 
+        state: present
+      loop: "{{ tomcat_versions }}"
+
+---
+- name: install dotnet on servers 
+  hosts: all 
+  become: yes 
+  vars:
+    dotnet_versions:
+      - aspnetcore-runtime-6.0 
+      - aspnetcore-runtime-7.0 
+  tasks: 
+    - name: install dotnet versions
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        update_cache: yes 
+        force_apt_get: yes 
+        state: present
+      loop: "{{ dotnet_versions }}"

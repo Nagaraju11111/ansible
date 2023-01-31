@@ -9,6 +9,7 @@
     wildfly_destination: /tmp/ 
     wildfly_group: wildfly
     wildfly_user: wildfly
+    wildfly_src: /opt/wildfly/wildfly-27.0.1.Final/docs/contrib/scripts/systemd/wildfly.conf
   tasks:
     - name: install java on ubuntu 
       ansible.builtin.apt:
@@ -52,8 +53,8 @@
         path: /etc/wildfly
         state: directory
     - name: copy files to wildfly
-      ansible.builtin.copy:   
-        src: /opt/wildfly/wildfly-27.0.1.Final/docs/contrib/scripts/systemd/wildfly.conf
+      ansible.builtin.template:   
+        src: "{{wildfly_src}}" 
         dest: /etc/wildfly/
         remote_src: yes
         owner: wildfly

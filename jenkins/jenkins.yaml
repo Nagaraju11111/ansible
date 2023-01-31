@@ -9,17 +9,15 @@
         update_cache: yes 
         state: present 
     - name: wget in jenkins 
-      ansible.builtin.url: 
+      ansible.builtin.get_url: 
         url: https://updates.jenkins.io/download/war/2.385/jenkins.war 
-        dest: /tmp/ 
+        dest: /home/devops/
     - name: copy servicefile
       ansible.builtin.copy: 
         src: jenkins.service 
-        dest: /lib/systemd/system/jenkins.service
+        dest: /etc/systemd/system/jenkins.service
     - name: service file 
       ansible.builtin.systemd: 
         name: jenkins 
-        daemon_reload: yes
-        enabled: yes
         state: started    
-
+        enabled: yes
