@@ -9,7 +9,12 @@ pipeline {
         }
         stage('ansible') {
             steps {
-                sh 'ansible-playbook -i ./tomcat2/hosts ./tomcat2/handlers.yaml'
+                ansiblePlaybook(
+                    playbook: './tomcat2/handlers.yaml',
+                    become: true
+                    inventory: './tomcat2/hosts'
+             )
+               //* sh 'ansible-playbook -i ./tomcat2/hosts ./tomcat2/handlers.yaml'*//
             }
         }
     }
