@@ -53,21 +53,26 @@
 }
 ```
 * to configure ansible node with jenkins server ,we write following Jenkinsfile.
-```bash
-    pipeline {
-    agent { label 'ansible' }
-    stages {
-        stage('vcs') {
-            steps {
-                git url: 'https://github.com/Nagaraju11111/ansible.git',
-                    branch: 'master'
+* ```yaml
+       pipeline {
+       agent { label 'ansible' }
+       stages {
+            stage('vcs') {
+               steps {
+                   git url: 'https://github.com/Nagaraju11111/ansible.git',
+                       branch: 'master'
+                }
             }
+            stage('ansible') {
+               steps {
+                  ansiblePlaybook (
+                    playbook: './tomcat2/handlers.yaml',
+                    become: true,
+                    inventory: './tomcat2/hosts'
+                )
+               //* sh 'ansible-playbook -i ./tomcat2/hosts ./tomcat2/handlers.yaml'*//
+               }
+           }
         }
-        stage('ansible') {
-            steps {
-                sh 'ansible-playbook -i ./tomcat2/hosts ./tomcat2/handlers.yaml'
-            }
-        }
-    }
-}
+ }
 ```

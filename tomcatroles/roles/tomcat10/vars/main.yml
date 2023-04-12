@@ -1,0 +1,6 @@
+---
+java_version: openjdk-11-jdk
+tomcat_group: tomcat 
+tomcat_user: tomcat 
+tomcat_home_dir: /opt/tomcat
+tomcat_download_url: https://dlcdn.apache.org/tomcat/tomcat-10/v10.0.27/bin/apache-tomcat-10.0.27.tar.gz

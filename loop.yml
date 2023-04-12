@@ -63,3 +63,21 @@
         force_apt_get: yes 
         state: present
       loop: "{{ dotnet_versions }}"
+
+--- 
+- name: add user 
+  become: yes 
+  hosts: all 
+  vars: 
+    crearting users:
+      - pavan 
+      - ram 
+      - venkat
+  tasks: 
+    - name: crearting user 
+      ansible.builtin.user:
+        name: "{{ item }}" 
+        state: present 
+      loop: "{{ crearting users }}"
+        
+

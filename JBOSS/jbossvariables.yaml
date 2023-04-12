@@ -13,17 +13,25 @@
       ansible.builtin.apt:
         name: "{{ java_package }}"
         update_cache: yes
-        state: present
+        state: present 
+      tags:
+        - devops 
+        - azure   
     - name: create directory
       ansible.builtin.file:
         path: /opt/wildfly 
         state: directory   
+      tags: 
+        - devops 
+        - aws   
     - name: download wildlife version
       ansible.builtin.get_url:
         url: "{{ wildfly_download_url }}"
         dest: "{{ wildfly_destination }}"    
       notify:
-        - unzip files
+        - unzip files 
+      tags: 
+        - devops       
     - name: add group
       ansible.builtin.group:
         name: "{{ wildfly_group }}"

@@ -63,7 +63,7 @@
         mode: '+x'
       with_items: "{{ files_to_change }}"   
     - name: copy service files 
-      ansible.builtin.copy:
+      ansible.builtin.template:
         src: tomcat.service
         dest: /etc/systemd/system/tomcat.service
         mode: '777'

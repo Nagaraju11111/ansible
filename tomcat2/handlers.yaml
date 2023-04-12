@@ -55,7 +55,7 @@
         patterns: '*.sh'
       register: files_to_change 
       notify:
-        - change shell file permissions  
+        - change shell file permissions    
     - name: copy service files 
       ansible.builtin.copy:
         src: tomcat.service

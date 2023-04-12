@@ -1,0 +1,59 @@
+---
+  - name: install java 
+    ansible.builtin.debug:
+        msg: installing java11 on ubuntu server
+  - name: install java and update ubuntu 
+    ansible.builtin.apt:
+        name: "{{ java_version }}"
+        update_cache: yes 
+        state: present
+  - name: create tomcat group 
+    ansible.builtin.debug:
+        msg: creating tomcat group 
+  - name: create tomcat group
+    ansible.builtin.group:
+        name: "{{ tomcat_group }}"
+        state: present        
+  - name: create tomcat user
+    ansible.builtin.debug:
+        msg: creating tomcat user    
+  - name: create a tomcat user
+    ansible.builtin.user:
+        name: "{{ tomcat_user }}"
+        home: "{{ tomcat_home_dir }}"
+        shell: /bin/false 
+        system: true 
+        group: tomcat 
+  - name: download tomcat 
+    ansible.builtin.get_url:
+        url: "{{ tomcat_download_url }}"
+        dest: /tmp/ 
+    notify: 
+        - extract files from tomcat 
+  - name: cretae a symbolic link 
+    ansible.builtin.file:
+        src: "{{ tomcat_home_dir }}/apache-tomcat-10.0.27"
+        dest: "{{ tomcat_home_dir }}/latest"
+        owner: tomcat 
+        group: tomcat 
+        state: link  
+    notify:
+        - change directory ownership
+  - name: select all shell files 
+    ansible.builtin.find: 
+        paths: /opt/tomcat/latest/bin/
+        patterns: '*.sh'
+    register: files_to_change 
+    notify:
+        - change shell file permissions  
+  - name: copy service files 
+    ansible.builtin.copy:
+        src: tomcat.service
+        dest: /etc/systemd/system/tomcat.service
+        mode: '777'
+  - name: start tomcat service
+    ansible.builtin.systemd:
+        name: tomcat 
+        daemon_reload: yes
+        enabled: yes
+        state: started  
